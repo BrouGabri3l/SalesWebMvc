@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 
+
 namespace SalesWebMvc.Controllers
 {
     public class SellersController : Controller
@@ -23,7 +24,7 @@ namespace SalesWebMvc.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var list =await _sellerService.FindAllAsync();
+            var list = await _sellerService.FindAllAsync();
             return View(list);
         }
         public async Task<IActionResult> Create()
@@ -47,6 +48,7 @@ namespace SalesWebMvc.Controllers
         }
         public async Task<IActionResult> Delete(int? id)
         {
+
             if (id == null)
             {
                 return RedirectToAction(nameof(Error), new { message = "Id Not Provided" });
@@ -62,8 +64,14 @@ namespace SalesWebMvc.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
         {
-           await _sellerService.Remove(id);
-            return RedirectToAction(nameof(Index)); 
+            try { 
+            await _sellerService.RemoveAsync(id);
+            return RedirectToAction(nameof(Index));
+            }
+            catch (IntegrityException e)
+            {
+                return RedirectToAction(nameof(Error), new { Message = e.Message });
+            }
         }
         public async Task<IActionResult> Details(int? id)
         {
@@ -109,7 +117,7 @@ namespace SalesWebMvc.Controllers
             }
             try
             { 
-            await _sellerService.Update(seller);
+            await _sellerService.UpdateAsync(seller);
             }
             catch (NotFoundException e)
             {
